@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class CrossWord {
-    private static final int TABLE_LENGTH = 13;
+    private static final int TABLE_LENGTH = 14;
     private static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static void main(String[] args) {
@@ -32,7 +32,7 @@ public class CrossWord {
         System.out.println("array before sort: ");
         System.out.println(arrayWord);
 
-        for (String word: arrayWord) {
+        for (String word : arrayWord) {
             totalNumberWord += word.length();
         }
 
@@ -52,7 +52,7 @@ public class CrossWord {
             for (int i = 0; i < TABLE_LENGTH; i++) {
                 for (int j = 0; j < TABLE_LENGTH; j++) {
                     char charRandom = SALTCHARS.charAt(random.nextInt(26));
-                    System.out.print((table[i][j] == '\0') ? (charRandom + "|") : (table[i][j] + "|"));
+                    System.out.print((table[i][j] == '\0') ? ("-|") : (table[i][j] + "|"));
                 }
                 System.out.println();
             }
@@ -73,7 +73,13 @@ public class CrossWord {
         int run = 0;
         while (run < TABLE_LENGTH) {
             int direction = random.nextInt(3);
-            char[] wordCharArray = wordArray.get(0).toUpperCase().toCharArray();
+            int revert = random.nextInt(2);
+            String word = wordArray.get(0).toUpperCase();
+            StringBuilder stringBuilder = new StringBuilder(word);
+            if (revert == 1) {
+                word = stringBuilder.reverse().toString();
+            }
+            char[] wordCharArray = word.toCharArray();
             String wordDelete = wordArray.get(0);
             if (direction == 0) {
                 int row = random.nextInt(TABLE_LENGTH);

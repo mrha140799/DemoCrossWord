@@ -1,15 +1,12 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class CrossWord {
-    private static final int TABLE_LENGTH = 10;
+    private static final int TABLE_LENGTH = 13;
+    private static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static void main(String[] args) {
-        List<Integer> numbersRandomRow = new ArrayList<>();
-        List<Integer> numbersRandomColumn = new ArrayList<>();
         char[][] table = new char[TABLE_LENGTH][TABLE_LENGTH];
-
+        int totalNumberWord = 0;
         List<String> arrayWord = new ArrayList<>();
 
         Random random = new Random();
@@ -20,21 +17,24 @@ public class CrossWord {
         arrayWord.add("LIGHT");
         arrayWord.add("FIGHTING");
         arrayWord.add("SAW");
-        arrayWord.add("avasc");
-        arrayWord.add("avwff");
-        arrayWord.add("cjedcsew");
-        arrayWord.add("qwevbc");
-        arrayWord.add("sdksdjge");
-//        arrayWord.add("vkldfjwx");
-//        arrayWord.add("roevnxk");
-//        arrayWord.add("mcxikxp");
-//        arrayWord.add("xmnvhks");
-//        arrayWord.add("wefwer");
-//        arrayWord.add("vcvbfdfg");
-//        arrayWord.add("vcbdhc");
-
+        arrayWord.add("printf");
+        arrayWord.add("functionality");
+        arrayWord.add("generate");
+        arrayWord.add("characters");
+        arrayWord.add("involves");
+        arrayWord.add("birthday");
+        arrayWord.add("connection");
+        arrayWord.add("positively");
+        arrayWord.add("holiday");
+        arrayWord.add("hollywood");
+        arrayWord.add("event");
+        arrayWord.add("announcement");
         System.out.println("array before sort: ");
         System.out.println(arrayWord);
+
+        for (String word: arrayWord) {
+            totalNumberWord += word.length();
+        }
 
         for (int i = 0; i < arrayWord.size() - 1; i++) {
             for (int j = i + 1; j < arrayWord.size(); j++) {
@@ -51,31 +51,39 @@ public class CrossWord {
             System.out.println("table");
             for (int i = 0; i < TABLE_LENGTH; i++) {
                 for (int j = 0; j < TABLE_LENGTH; j++) {
-                    System.out.print((table[i][j] == '\0') ? "-|" : (table[i][j] + "|"));
+                    char charRandom = SALTCHARS.charAt(random.nextInt(26));
+                    System.out.print((table[i][j] == '\0') ? (charRandom + "|") : (table[i][j] + "|"));
                 }
                 System.out.println();
             }
         }
+        WordPositionManagement management = WordPositionManagement.getInstance();
+        Iterator listWordPositionIterator = management.getWordPositionMap().entrySet().iterator();
+        while (listWordPositionIterator.hasNext()) {
+            Map.Entry listWordPosition = (Map.Entry) listWordPositionIterator.next();
+            System.out.println("word: " + listWordPosition.getKey() + "- position: " + listWordPosition.getValue());
+        }
+        System.out.println("Total number word of list: " + totalNumberWord);
     }
 
     private static boolean addWordToTable(char[][] table, List<String> wordArray) {
         if (wordArray.size() == 0) return true;
+        WordPositionManagement management = WordPositionManagement.getInstance();
         Random random = new Random();
         int run = 0;
         while (run < TABLE_LENGTH) {
             int direction = random.nextInt(3);
-            System.out.println("Direction: " + direction);
             char[] wordCharArray = wordArray.get(0).toUpperCase().toCharArray();
             String wordDelete = wordArray.get(0);
             if (direction == 0) {
                 int row = random.nextInt(TABLE_LENGTH);
                 int column = random.nextInt(TABLE_LENGTH - wordCharArray.length + 1);
                 if (isValid(table, wordCharArray, row, column, direction)) {
-                    System.out.println("IsValid");
                     //them vao table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row][column + i] = wordCharArray[i];
                     wordArray.remove(wordDelete);
+                    management.addWordPosition(row, column, wordDelete, direction);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
@@ -83,6 +91,7 @@ public class CrossWord {
                         table[row][column + i] = '\0';
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
+                    management.removeWordPosition(wordDelete);
                     run--;
                 }
             }
@@ -94,6 +103,7 @@ public class CrossWord {
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column] = wordCharArray[i];
                     wordArray.remove(wordDelete);
+                    management.addWordPosition(row, column, wordDelete, direction);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
@@ -101,7 +111,7 @@ public class CrossWord {
                         table[row + i][column] = '\0';
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
-                    //xoa khoi table
+                    management.removeWordPosition(wordDelete);
                     run--;
                 }
             }
@@ -113,6 +123,7 @@ public class CrossWord {
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column + i] = wordCharArray[i];
                     wordArray.remove(wordDelete);
+                    management.addWordPosition(row, column, wordDelete, direction);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
@@ -120,6 +131,7 @@ public class CrossWord {
                         table[row + i][column + i] = '\0';
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
+                    management.removeWordPosition(wordDelete);
                     run--;
                 }
             }

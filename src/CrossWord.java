@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class CrossWord {
-    private static final int TABLE_LENGTH = 10;
+    private static final int TABLE_LENGTH = 12;
     private static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static void main(String[] args) {
@@ -29,9 +29,17 @@ public class CrossWord {
         arrayWord.add("holiday");
         arrayWord.add("hollywood");
         arrayWord.add("event");
-//        arrayWord.add("announcement");
+//        arrayWord.add("announce");
         System.out.println("array before sort: ");
         System.out.println(arrayWord);
+
+
+        arrayWord = sortWordArrayByLength(arrayWord);
+        System.out.println("array after sort: ");
+        System.out.println(arrayWord);
+        totalNumberWord = getTotalNumberWord(arrayWord);
+        System.out.println("Total number word of list: " + totalNumberWord);
+        printAnswerKey();
         if (addListWordToTable(arrayWord, table)) {
             System.out.println("table");
             for (int i = 0; i < TABLE_LENGTH; i++) {
@@ -42,14 +50,6 @@ public class CrossWord {
                 System.out.println();
             }
         }
-
-
-        sortWordArrayByLength(arrayWord);
-        System.out.println("array after sort: ");
-        System.out.println(arrayWord);
-        totalNumberWord = getTotalNumberWord(arrayWord);
-        System.out.println("Total number word of list: " + totalNumberWord);
-        printAnswerKey();
     }
 
     private static boolean addListWordToTable(Stack<String> wordArray, char[][] table) {
@@ -60,7 +60,7 @@ public class CrossWord {
             int row = random.nextInt(TABLE_LENGTH);
             int column = random.nextInt(TABLE_LENGTH);
             int direction = random.nextInt(3);
-            String word = wordArray.pop();
+            String word = wordArray.peek();
             char[] wordCharArray = word.toUpperCase().toCharArray();
             while (!isFullGridPosition(gridPositions)) {
                 if (isContainPosition(row, column, gridPositions)) {
@@ -69,6 +69,7 @@ public class CrossWord {
                     continue;
                 }
                 if (isValid(table, wordCharArray, row, column, direction)) {
+                    wordArray.pop();
                     addWordCharArrayToTable(row, column, direction, table, wordCharArray);
                     if (addListWordToTable(wordArray, table)) return true;
                     else {
@@ -124,27 +125,29 @@ public class CrossWord {
     }
 
     private static boolean isFullGridPosition(List<Integer> gridPositions) {
-        return gridPositions.size() >= Math.pow(TABLE_LENGTH, 2);
+        return gridPositions.size() >= Math.pow(TABLE_LENGTH, 2)-5;
     }
 
 
     private static boolean isValid(char[][] table, char[] wordCharArray, int row, int column, int direction) {
-
         if (direction == 0) {   //ngang
+            if (column > TABLE_LENGTH - wordCharArray.length) return false;
             for (int i = 0; i < wordCharArray.length; i++) {
-                if ((column > TABLE_LENGTH - wordCharArray.length) || (table[row][column + i] != '\0' && table[row][column + i] != wordCharArray[i])) {
+                if ((table[row][column + i] != '\0' && table[row][column + i] != wordCharArray[i])) {
                     return false;
                 }
             }
         } else if (direction == 1) { //doc
+            if (row > TABLE_LENGTH - wordCharArray.length) return false;
             for (int i = 0; i < wordCharArray.length; i++) {
-                if ((row > TABLE_LENGTH - wordCharArray.length) || (table[row + i][column] != '\0' && table[row + i][column] != wordCharArray[i])) {
+                if ((table[row + i][column] != '\0' && table[row + i][column] != wordCharArray[i])) {
                     return false;
                 }
             }
         } else if (direction == 2) { //cheo
+            if (row > TABLE_LENGTH - wordCharArray.length || column > TABLE_LENGTH - wordCharArray.length) return false;
             for (int i = 0; i < wordCharArray.length; i++) {
-                if ((row > TABLE_LENGTH - wordCharArray.length || column > TABLE_LENGTH - wordCharArray.length) || (table[row + i][column + i] != '\0' && table[row + i][column + i] != wordCharArray[i])) {
+                if ((table[row + i][column + i] != '\0' && table[row + i][column + i] != wordCharArray[i])) {
                     return false;
                 }
             }
@@ -152,16 +155,28 @@ public class CrossWord {
         return true;
     }
 
-    private static void sortWordArrayByLength(Stack<String> arrayWord) {
-        for (int i = 0; i < arrayWord.size() - 1; i++) {
-            for (int j = i + 1; j < arrayWord.size(); j++) {
-                if (arrayWord.get(i).length() < arrayWord.get(j).length()) {
-                    arrayWord.add(i, arrayWord.get(j));
-                    arrayWord.remove(j + 1);
-                }
+    private static Stack<String> sortWordArrayByLength(Stack<String> input) {
+        Stack<String> tmpStack = new Stack<>();
+        while (!input.isEmpty()) {
+            String tmp = input.pop();
+            while (!tmpStack.isEmpty() && tmpStack.peek().length() > tmp.length()) {
+                input.push(tmpStack.pop());
             }
+            tmpStack.push(tmp);
         }
+        return tmpStack;
     }
+
+//    private static void sortWordArrayByLength(Stack<String> arrayWord) {
+//        for (int i = 0; i < arrayWord.size() - 1; i++) {
+//            for (int j = i + 1; j < arrayWord.size(); j++) {
+//                if (arrayWord.get(i).length() < arrayWord.get(j).length()) {
+//                    arrayWord.add(i, arrayWord.get(j));
+//                    arrayWord.remove(j + 1);
+//                }
+//            }
+//        }
+//    }
 
     private static int getTotalNumberWord(Stack<String> arrayWord) {
         int totalNumberWord = 0;

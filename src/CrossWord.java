@@ -60,7 +60,12 @@ public class CrossWord {
             int row = random.nextInt(TABLE_LENGTH);
             int column = random.nextInt(TABLE_LENGTH);
             int direction = random.nextInt(3);
+            int revert = random.nextInt(2);
             String word = wordArray.peek();
+            if (revert==1) {
+                StringBuilder stringBuilder = new StringBuilder(word);
+                word = stringBuilder.reverse().toString();
+            }
             char[] wordCharArray = word.toUpperCase().toCharArray();
             while (!isFullGridPosition(gridPositions)) {
                 if (isContainPosition(row, column, gridPositions)) {

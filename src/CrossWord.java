@@ -1,14 +1,13 @@
 import java.util.*;
 
 public class CrossWord {
-    private static final int TABLE_LENGTH = 14;
+    private static final int TABLE_LENGTH = 13;
     private static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static void main(String[] args) {
         char[][] table = new char[TABLE_LENGTH][TABLE_LENGTH];
         int totalNumberWord = 0;
         List<String> arrayWord = new ArrayList<>();
-
         Random random = new Random();
         arrayWord.add("CROSSWORD");
         arrayWord.add("exception");
@@ -65,8 +64,20 @@ public class CrossWord {
         }
         System.out.println("Total number word of list: " + totalNumberWord);
     }
+    public static void printTable(String title,char[][] table) {
+        Random random = new Random();
+        System.out.println(title);
+        for (int i = 0; i < TABLE_LENGTH; i++) {
+            for (int j = 0; j < TABLE_LENGTH; j++) {
+                char charRandom = SALTCHARS.charAt(random.nextInt(26));
+                System.out.print((table[i][j] == '\0') ? ("-|") : (table[i][j] + "|"));
+            }
+            System.out.println();
+        }
+    }
 
     private static boolean addWordToTable(char[][] table, List<String> wordArray) {
+        List<Integer> gridPosition = new ArrayList<>();
         if (wordArray.size() == 0) return true;
         WordPositionManagement management = WordPositionManagement.getInstance();
         Random random = new Random();
@@ -81,86 +92,111 @@ public class CrossWord {
             }
             char[] wordCharArray = word.toCharArray();
             String wordDelete = wordArray.get(0);
+            int row = random.nextInt(TABLE_LENGTH);
+            int column = random.nextInt(TABLE_LENGTH);
             if (direction == 0) {
-                int row = random.nextInt(TABLE_LENGTH);
-                int column = random.nextInt(TABLE_LENGTH - wordCharArray.length + 1);
-                if (isValid(table, wordCharArray, row, column, direction)) {
+                if (isValid(table, wordCharArray, row, column, direction, gridPosition)) {
                     //them vao table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row][column + i] = wordCharArray[i];
                     wordArray.remove(wordDelete);
                     management.addWordPosition(row, column, wordDelete, direction);
+                    printTable("create",table);
+                    System.out.println("Add word: "+wordDelete);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row][column + i] = '\0';
+                    printTable("delete",table);
+                    System.out.println("delete word: "+wordDelete);
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
                     management.removeWordPosition(wordDelete);
+                    int grdPosition = row * TABLE_LENGTH + column;
+                    gridPosition.add(grdPosition);
                     run--;
+                }else {
+                    return false;
                 }
             }
             if (direction == 1) {
-                int row = random.nextInt(TABLE_LENGTH - wordCharArray.length + 1);
-                int column = random.nextInt(TABLE_LENGTH);
-                if (isValid(table, wordCharArray, row, column, direction)) {
+                if (isValid(table, wordCharArray, row, column, direction, gridPosition)) {
                     //them vao table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column] = wordCharArray[i];
                     wordArray.remove(wordDelete);
                     management.addWordPosition(row, column, wordDelete, direction);
+                    printTable("create",table);
+                    System.out.println("Add word: "+wordDelete);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column] = '\0';
+                    printTable("delete",table);
+                    System.out.println("delete word: "+wordDelete);
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
                     management.removeWordPosition(wordDelete);
+                    int grdPosition = row * TABLE_LENGTH + column;
+                    gridPosition.add(grdPosition);
                     run--;
+                }else {
+                    return false;
                 }
             }
             if (direction == 2) {
-                int row = random.nextInt(TABLE_LENGTH - wordCharArray.length + 1);
-                int column = random.nextInt(TABLE_LENGTH - wordCharArray.length + 1);
-                if (isValid(table, wordCharArray, row, column, direction)) {
+                if (isValid(table, wordCharArray, row, column, direction, gridPosition)) {
                     //them vao table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column + i] = wordCharArray[i];
                     wordArray.remove(wordDelete);
                     management.addWordPosition(row, column, wordDelete, direction);
+                    printTable("create",table);
+                    System.out.println("Add word: "+wordDelete);
                     run++;
                     if (addWordToTable(table, wordArray)) return true;
                     //xoa khoi table
                     for (int i = 0; i < wordCharArray.length; i++)
                         table[row + i][column + i] = '\0';
+                    printTable("delete",table);
+                    System.out.println("delete word: "+wordDelete);
                     //add lai tu vua xoa de tro lai them lai
                     wordArray.add(0, wordDelete);
                     management.removeWordPosition(wordDelete);
+                    int grdPosition = row * TABLE_LENGTH + column;
+                    gridPosition.add(grdPosition);
                     run--;
+                }else {
+                    return false;
+
                 }
             }
+
         }
         return false;
     }
 
-    private static boolean isValid(char[][] table, char[] wordCharArray, int row, int column, int direction) {
+    private static boolean isValid(char[][] table, char[] wordCharArray, int row, int column, int direction, List<Integer> gridPosition) {
+        int grdPosition = row * TABLE_LENGTH + column;
+        if (gridPosition.size() >= Math.pow(TABLE_LENGTH, 2)) return false;
+        if (gridPosition.contains(grdPosition)) return false;
         if (direction == 0) {   //ngang
             for (int i = 0; i < wordCharArray.length; i++) {
-                if (table[row][column + i] != '\0' && table[row][column + i] != wordCharArray[i]) {
+                if ((column > TABLE_LENGTH - wordCharArray.length) || (table[row][column + i] != '\0' && table[row][column + i] != wordCharArray[i])) {
                     return false;
                 }
             }
         } else if (direction == 1) { //doc
             for (int i = 0; i < wordCharArray.length; i++) {
-                if (table[row + i][column] != '\0' && table[row + i][column] != wordCharArray[i]) {
+                if ((row > TABLE_LENGTH - wordCharArray.length) || (table[row + i][column] != '\0' && table[row + i][column] != wordCharArray[i])) {
                     return false;
                 }
             }
         } else if (direction == 2) { //cheo
             for (int i = 0; i < wordCharArray.length; i++) {
-                if (table[row + i][column + i] != '\0' && table[row + i][column + i] != wordCharArray[i]) {
+                if ((row > TABLE_LENGTH - wordCharArray.length || column > TABLE_LENGTH - wordCharArray.length) || (table[row + i][column + i] != '\0' && table[row + i][column + i] != wordCharArray[i])) {
                     return false;
                 }
             }

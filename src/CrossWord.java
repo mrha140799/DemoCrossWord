@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class CrossWord {
-    private static final int TABLE_LENGTH = 12;
+    private static final int TABLE_LENGTH = 9;
     private static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public static void main(String[] args) {
@@ -9,27 +9,25 @@ public class CrossWord {
         int totalNumberWord;
         Stack<String> arrayWord = new Stack<>();
 
-
-        Random random = new Random();
-        arrayWord.add("CROSSWORD");
-        arrayWord.add("exception");
-        arrayWord.add("Reverse");
-        arrayWord.add("STRING");
-        arrayWord.add("LIGHT");
-        arrayWord.add("FIGHTING");
-        arrayWord.add("SAW");
-        arrayWord.add("printf");
-        arrayWord.add("functional");
-        arrayWord.add("generate");
-        arrayWord.add("characters");
-        arrayWord.add("involves");
-        arrayWord.add("birthday");
-        arrayWord.add("connection");
-        arrayWord.add("positively");
-        arrayWord.add("holiday");
-        arrayWord.add("hollywood");
-        arrayWord.add("event");
-//        arrayWord.add("announce");
+        arrayWord.push("CROSSWORD");
+        arrayWord.push("exception");
+        arrayWord.push("Reverse");
+        arrayWord.push("STRING");
+        arrayWord.push("LIGHT");
+        arrayWord.push("FIGHTING");
+        arrayWord.push("SAW");
+        arrayWord.push("printf");
+//        arrayWord.push("functional");
+        arrayWord.push("generate");
+        arrayWord.push("character");
+        arrayWord.push("involves");
+        arrayWord.push("birthday");
+//        arrayWord.push("connection");
+//        arrayWord.push("positively");
+//        arrayWord.push("holiday");
+//        arrayWord.push("hollywood");
+//        arrayWord.push("event");
+//        arrayWord.push("announce");
         System.out.println("array before sort: ");
         System.out.println(arrayWord);
 
@@ -41,14 +39,7 @@ public class CrossWord {
         System.out.println("Total number word of list: " + totalNumberWord);
         printAnswerKey();
         if (addListWordToTable(arrayWord, table)) {
-            System.out.println("table");
-            for (int i = 0; i < TABLE_LENGTH; i++) {
-                for (int j = 0; j < TABLE_LENGTH; j++) {
-                    char charRandom = SALTCHARS.charAt(random.nextInt(26));
-                    System.out.print((table[i][j] == '\0') ? ("-|") : (table[i][j] + "|"));
-                }
-                System.out.println();
-            }
+            printTable("RESULT",table);
         }
     }
 
@@ -59,27 +50,27 @@ public class CrossWord {
             List<Integer> gridPositions = new ArrayList<>();
             int row = random.nextInt(TABLE_LENGTH);
             int column = random.nextInt(TABLE_LENGTH);
-            int direction = random.nextInt(3);
-            int revert = random.nextInt(2);
             String word = wordArray.peek();
-            if (revert==1) {
-                StringBuilder stringBuilder = new StringBuilder(word);
-                word = stringBuilder.reverse().toString();
-            }
-            char[] wordCharArray = word.toUpperCase().toCharArray();
             while (!isFullGridPosition(gridPositions)) {
                 if (isContainPosition(row, column, gridPositions)) {
                     row = random.nextInt(TABLE_LENGTH);
                     column = random.nextInt(TABLE_LENGTH);
                     continue;
                 }
+                int direction = random.nextInt(3);
+                word= revertWord(word, random);
+                char[] wordCharArray = word.toUpperCase().toCharArray();
                 if (isValid(table, wordCharArray, row, column, direction)) {
                     wordArray.pop();
                     addWordCharArrayToTable(row, column, direction, table, wordCharArray);
+                    System.out.println("---->Add: " +word);
+                    printTable("CREATE",table);
                     if (addListWordToTable(wordArray, table)) return true;
                     else {
                         removeWordCharArray(row, column, direction, table, wordCharArray);
                         wordArray.push(word);
+                        System.out.println("---->REMOVE: " +word);
+                        printTable("Drop word: ",table);
                     }
                 }
             }
@@ -130,9 +121,8 @@ public class CrossWord {
     }
 
     private static boolean isFullGridPosition(List<Integer> gridPositions) {
-        return gridPositions.size() >= Math.pow(TABLE_LENGTH, 2)-5;
+        return gridPositions.size() >= (Math.pow(TABLE_LENGTH, 2) - 1);
     }
-
 
     private static boolean isValid(char[][] table, char[] wordCharArray, int row, int column, int direction) {
         if (direction == 0) {   //ngang
@@ -172,16 +162,15 @@ public class CrossWord {
         return tmpStack;
     }
 
-//    private static void sortWordArrayByLength(Stack<String> arrayWord) {
-//        for (int i = 0; i < arrayWord.size() - 1; i++) {
-//            for (int j = i + 1; j < arrayWord.size(); j++) {
-//                if (arrayWord.get(i).length() < arrayWord.get(j).length()) {
-//                    arrayWord.add(i, arrayWord.get(j));
-//                    arrayWord.remove(j + 1);
-//                }
-//            }
-//        }
-//    }
+    private static String revertWord(String word, Random random) {
+        int revert = random.nextInt(2);
+        if (revert == 1) {
+            StringBuilder stringBuilder = new StringBuilder(word);
+            word = stringBuilder.reverse().toString();
+        }
+        return word;
+    }
+
 
     private static int getTotalNumberWord(Stack<String> arrayWord) {
         int totalNumberWord = 0;
@@ -195,6 +184,18 @@ public class CrossWord {
         WordPositionManagement management = WordPositionManagement.getInstance();
         for (Map.Entry<String, WordPosition> stringWordPositionEntry : management.getWordPositionMap().entrySet()) {
             System.out.println("word: " + ((Map.Entry) stringWordPositionEntry).getKey() + "- position: " + ((Map.Entry) stringWordPositionEntry).getValue());
+        }
+    }
+
+    private static void printTable(String title, char[][] table) {
+        Random random = new Random();
+        System.out.println(title);
+        for (int i = 0; i < TABLE_LENGTH; i++) {
+            for (int j = 0; j < TABLE_LENGTH; j++) {
+                char charRandom = SALTCHARS.charAt(random.nextInt(26));
+                System.out.print((table[i][j] == '\0') ? ("-|") : (table[i][j] + "|"));
+            }
+            System.out.println();
         }
     }
 }
